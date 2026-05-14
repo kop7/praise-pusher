@@ -5,7 +5,7 @@
     <vendor email="matija.kop1@gmail.com" url="https://github.com/kop7">Matija</vendor>
 
     <description>
-        Shows a friendly motivational message after a successful Git push.
+        Turn everyday Git actions into tiny wins.
     </description>
 
     <idea-version since-build="253"/>

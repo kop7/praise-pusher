@@ -36,9 +36,12 @@ object PraiseNotifications {
     }
 
     fun notify(project: Project, message: String) {
+        val displayName = PraisePusherSettingsState.getInstance().displayName.trim()
+        val text = if (displayName.isNotEmpty()) "$displayName: $message" else message
+
         NotificationGroupManager.getInstance()
             .getNotificationGroup(NOTIFICATION_GROUP_ID)
-            .createNotification(message, NotificationType.INFORMATION)
+            .createNotification(text, NotificationType.INFORMATION)
             .notify(project)
     }
 }

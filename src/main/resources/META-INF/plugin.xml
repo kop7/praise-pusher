@@ -19,6 +19,11 @@
             id="Praise Pusher"
             displayType="BALLOON"
             isLogByDefault="true"/>
+        <applicationConfigurable
+            parentId="tools"
+            id="com.kop.praisepusher.settings"
+            displayName="Praise Pusher"
+            instance="com.kop.praisepusher.PraisePusherSettingsConfigurable"/>
         <postStartupActivity implementation="com.kop.praisepusher.PraisePusherProjectActivity"/>
         <checkinHandlerFactory implementation="com.kop.praisepusher.GitCommitPraiseHandlerFactory"/>
     </extensions>

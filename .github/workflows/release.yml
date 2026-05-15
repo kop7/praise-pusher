@@ -32,7 +32,7 @@ jobs:
       - name: Fetch Sources
         uses: actions/checkout@v6
         with:
-          ref: ${{ github.event.release.tag_name }}
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref_name }}
 
       # Set up the Java environment for the next steps
       - name: Setup Java

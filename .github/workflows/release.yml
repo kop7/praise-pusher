@@ -44,14 +44,48 @@ jobs:
         with:
           cache-read-only: true
 
+      # Prepare and validate signing material from secrets
+      - name: Prepare Signing Material
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
+          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
+        run: |
+          set -euo pipefail
+
+          # Support both raw multiline PEM and escaped "\n" secret formats.
+          if printf '%s' "$PRIVATE_KEY" | grep -q '\\n'; then
+            printf '%b' "$PRIVATE_KEY" > /tmp/private_encrypted.pem
+          else
+            printf '%s' "$PRIVATE_KEY" > /tmp/private_encrypted.pem
+          fi
+
+          if printf '%s' "$CERTIFICATE_CHAIN" | grep -q '\\n'; then
+            printf '%b' "$CERTIFICATE_CHAIN" > /tmp/chain.crt
+          else
+            printf '%s' "$CERTIFICATE_CHAIN" > /tmp/chain.crt
+          fi
+
+          # Normalize CRLF to LF in case secrets were pasted from Windows.
+          sed -i 's/\r$//' /tmp/private_encrypted.pem /tmp/chain.crt
+
+          # Fail early with a clear error if key/password are invalid.
+          openssl pkcs8 \
+            -in /tmp/private_encrypted.pem \
+            -inform PEM \
+            -passin env:PRIVATE_KEY_PASSWORD \
+            -out /tmp/private_decrypted.pem
+
       # Publish the plugin to JetBrains Marketplace
       - name: Publish Plugin
         env:
           PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
-          CERTIFICATE_CHAIN: ${{ secrets.CERTIFICATE_CHAIN }}
-          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           PRIVATE_KEY_PASSWORD: ${{ secrets.PRIVATE_KEY_PASSWORD }}
-        run: ./gradlew publishPlugin
+        run: |
+          ./gradlew publishPlugin \
+            -PintellijPlatform.signing.privateKeyFile=/tmp/private_encrypted.pem \
+            -PintellijPlatform.signing.certificateChainFile=/tmp/chain.crt \
+            -PintellijPlatform.signing.password="$PRIVATE_KEY_PASSWORD"
 
       # Upload an artifact as a release asset
       - name: Upload Release Asset

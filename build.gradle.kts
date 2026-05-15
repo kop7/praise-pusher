@@ -5,7 +5,7 @@ plugins {
 
 dependencies {
     intellijPlatform {
-        phpstorm("2025.3")
+        intellijIdeaCommunity("2024.1")
         bundledPlugin("Git4Idea")
     }
 }
